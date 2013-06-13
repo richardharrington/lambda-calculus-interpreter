@@ -14,7 +14,7 @@
         [ (list 'func _ _) (list 'closure expr env) ]
         [ (list 'call f val) (match (evaluate f env)
                              [ (list 'closure (list 'func var-name body) cenv) 
-                               (evaluate body (cons (cons var-name (evaluate val env)) cenv)) ]
+                               (evaluate body (cons (list var-name (evaluate val env)) cenv)) ]
                              [ _ (raise-arguments-error 'Eval: "Cannot Evaluate Call" "expr: " f) ])])))
   
   (define lookup
@@ -35,6 +35,7 @@
                (evaluate (list 'call (list 'func "x" (list 'plus (list 'var "x") (list 'num 1)))
                                      (list 'num 2)) '())
                3)
+  
   (test-equal? "evaluate to 7"
                (evaluate (list 'num 7) '()) 
                7)
@@ -63,7 +64,6 @@
                (evaluate (list 'plus (list 'var "a")
                                (list 'minus (list 'num 2)
                                      (list 'num 1))) '(("a" 5)))
-               6)
-  
-  )
+               6))
+ 
 
