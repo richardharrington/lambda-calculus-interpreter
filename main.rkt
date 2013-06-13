@@ -1,8 +1,9 @@
 #lang racket
-(require racket/match)
 
 (module interpreter racket
+  (require racket/match)
   (provide evaluate)
+  
   (define evaluate
     (lambda (expr)
       (match expr
@@ -12,6 +13,7 @@
 
 (module test racket
   (require rackunit)
+  (require (submod ".." interpreter))
   (test-equal? "evaluate to 7"
                (evaluate (list 'num 7)) 
                7)
