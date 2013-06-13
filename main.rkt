@@ -11,6 +11,11 @@
         [ (list 'num n) n ]
         [ (list 'plus left right) (+ (evaluate left env) (evaluate right env)) ]
         [ (list 'minus left right) (- (evaluate left env) (evaluate right env)) ]
+        [ (list 'func __ __) (list 'closure expr env) ]
+        [ (list 'call (list 'closure (list 'func var-name body) cenv) 
+                      val)
+            (evaluate body (cons env (cons (cons var-name val) cenv))) ]
+        ;[ (list 'call func val) (evaluate func val) ]
         )))
   
   (define lookup
@@ -26,6 +31,11 @@
 (module test racket
   (require rackunit)
   (require (submod ".." interpreter))
+  
+  (test-equal? "functions"
+               (evaluate (list 'call (list 'func "x" (list 'plus (list 'var "x") (list 'num 1)))
+                                     (list 'num 2)) '())
+               3)
   (test-equal? "evaluate to 7"
                (evaluate (list 'num 7) '()) 
                7)
@@ -34,7 +44,7 @@
                (evaluate (list 'plus (list 'num 5) (list 'num 3)) '())
                8)
   
-  (test-equal? "nested addition" 
+  (test-equal? "nested addition"
                (evaluate (list 'plus (list 'num 5)
                                (list 'plus (list 'num 2)
                                      (list 'num 10))) '())
@@ -50,9 +60,11 @@
                (evaluate (list 'var "a") '(("a" 5)))
                5)
   
-  (test-equal? "addition and subtraction with var"
+  (test-equal? "addition and subtraction with variable"
                (evaluate (list 'plus (list 'var "a")
                                (list 'minus (list 'num 2)
                                      (list 'num 1))) '(("a" 5)))
-               6))
+               6)
+  
+  )
 
