@@ -48,11 +48,4 @@
 
   (test-equal? "evaluate a variable"
                (evaluate (list 'var "a") '(("a" 5)))
-               5)
-  
-  (test-equal? "addition and subtraction"
-               (evaluate (list 'plus (list 'var "a")
-                               (list 'minus (list 'num 2)
-                                     (list 'num 1))) '(("a" 5)))
-               6))
-
+               5))
