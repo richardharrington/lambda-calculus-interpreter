@@ -50,7 +50,7 @@
                (evaluate (list 'var "a") '(("a" 5)))
                5)
   
-  (test-equal? "addition and subtraction"
+  (test-equal? "addition and subtraction with var"
                (evaluate (list 'plus (list 'var "a")
                                (list 'minus (list 'num 2)
                                      (list 'num 1))) '(("a" 5)))
