@@ -9,20 +9,42 @@
       (eval-with-env expr '())))
   
   (define eval-with-env
-    (lambda (expr env)
-      (match expr
-        [ (list 'var name) (lookup name env)]
-        [ (list 'num n) n ]
-        [ (list 'plus left right) (+ (eval-with-env left env) (eval-with-env right env)) ]
-        [ (list 'minus left right) (- (eval-with-env left env) (eval-with-env right env)) ]
-        [ (list 'func var-name body) (list 'closure var-name body env) ]
-        [ (list 'call c val) (match (eval-with-env c env)
-                             [ (list 'closure var-name body cenv) 
-                               (eval-with-env body (cons (list var-name (eval-with-env val env)) cenv)) ]
-                             [ _ (raise-arguments-error 'Eval: "Cannot eval-with-env Call" "expr: " c) ])]
-        ;[ (list 'let-direct (list ')))
+    (lambda (expression env)
+      (match expression
+        [ (list 'var name)  
+          (lookup name env)]
+        [ (list 'num n) 
+          n ]
+        [ (list 'bool 'false)
+          #f ]
+        [ (list 'bool 'true)
+          #t ]
+        [ (list 'plus left right) 
+          (+ (eval-with-env left env) (eval-with-env right env)) ]
+        [ (list 'minus left right) 
+          (- (eval-with-env left env) (eval-with-env right env)) ]
+        [ (list 'func var-name body) 
+          (list 'closure var-name body env) ]
+    
+        
+        [ (list 'call c param) 
+          (match (eval-with-env c env)
+            [ (list 'closure var-name body cenv) 
+              (eval-with-env body (cons (list var-name (eval-with-env param env)) cenv)) ]
+            [ _ (raise-arguments-error 'Eval: "Cannot eval-with-env Call" "expr: " c) ])]
+        
+        [ (list 'let-direct (list var-name expr) body)
+          (eval-with-env body (cons (list var-name (eval-with-env expr env)) env)) ]
+        
+        [ (list 'let-by-func (list var-name expr) body)
+          (eval-with-env (list 'call (list 'func var-name body) expr) env) ]
+        
+        [ (list 'if test do-if-true do-if-false)
+          (if (eval-with-env test env)
+              (eval-with-env do-if-true env)
+              (eval-with-env do-if-false env)) ])))
   
-  )))
+  
   
   (define lookup
     (lambda (var env)
@@ -82,6 +104,26 @@
                                       (plus (num 5)
                                             (var "x")))))
                15)
+  
+  (test-equal? "let-direct"
+               (evaluate '(let-direct ("x" (num 28))
+                                      (var "x")))
+               28)
+  
+  (test-equal? "let-by-func"
+               (evaluate '(let-by-func ("x" (num 18))
+                                       (var "x")))
+               18)
+  
+  (test-equal? "if true"
+               (evaluate '(let-by-func ("b" (bool true))
+                                       (if (var "b") (num 6) (num 7))))
+               6)
+  
+  (test-equal? "if false"
+               (evaluate '(let-by-func ("b" (bool false))
+                                       (if (var "b") (num 6) (num 7))))
+               7)
   
   )
                
