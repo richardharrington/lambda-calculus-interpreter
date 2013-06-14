@@ -15,11 +15,14 @@
         [ (list 'num n) n ]
         [ (list 'plus left right) (+ (eval-with-env left env) (eval-with-env right env)) ]
         [ (list 'minus left right) (- (eval-with-env left env) (eval-with-env right env)) ]
-        [ (list 'func _ _) (list 'closure expr env) ]
+        [ (list 'func var-name body) (list 'closure var-name body env) ]
         [ (list 'call c val) (match (eval-with-env c env)
-                             [ (list 'closure (list 'func var-name body) cenv) 
+                             [ (list 'closure var-name body cenv) 
                                (eval-with-env body (cons (list var-name (eval-with-env val env)) cenv)) ]
-                             [ _ (raise-arguments-error 'Eval: "Cannot eval-with-env Call" "expr: " c) ])])))
+                             [ _ (raise-arguments-error 'Eval: "Cannot eval-with-env Call" "expr: " c) ])]
+        ;[ (list 'let-direct (list ')))
+  
+  )))
   
   (define lookup
     (lambda (var env)
